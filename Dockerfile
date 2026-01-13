@@ -11,16 +11,17 @@ RUN apt-get clean && apt-get update && \
 RUN mkdir -p /root/.ssh
 RUN chmod 644 /root/.ssh
 
-
-RUN mkdir /build
+RUN mkdir -p /build/modules
 
 COPY copykernel.sh /usr/local/bin/copykernel
 RUN chmod +x /usr/local/bin/copykernel
 
 WORKDIR /build
+
 ENV KCFLAGS="-march=armv7-a"
 ENV ARCH="arm"
 ENV CROSS_COMPILE="arm-linux-gnueabihf-"
+
 RUN wget https://github.com/raspberrypi/linux/archive/raspberrypi-kernel_1.20210527-1.tar.gz && \
     tar xf raspberrypi-kernel_1.20210527-1.tar.gz
 
