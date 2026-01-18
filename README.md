@@ -26,53 +26,38 @@ You will be dropped into a shell inside the container's `/build` directory. From
 > After you `exit` out of that shell, the Docker container will stop, but will not be removed. If you want to jump back into it, you can run `docker start cross-compile` and `docker attach cross-compile`.
 
 ## Compiling the Kernel
-
-**If compiling on the Raspberry Pi directly**: omit the `ARCH` and `CROSS_COMPILE` options, and install required dependencies with: `sudo apt install -y git bc sshfs bison flex libssl-dev python3 make kmod libc6-dev libncurses5-dev`.
-
   1. Clone the linux repo (or clone a fork or a different branch):
 
      ```
-     git clone --depth=1 https://github.com/raspberrypi/linux
+     wget https://github.com/raspberrypi/linux/archive/raspberrypi-kernel_1.20210527-1.tar.gz
      ```
 
-  1. Run the following commands to make the .config file (change the `bcm2712` to `bcm2711` if compiling for Pi 4/400/CM4):
+  1. Run the following commands to make the .config file:
 
      ```
      cd linux
-     make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- bcm2712_defconfig
+     make -j$(nproc) KCFLAGS="-march=armv7-a" ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- bcm2711_defconfig
      ```
 
   1. (Optionally) Either edit the .config file by hand or use menuconfig:
 
      ```
-     make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- menuconfig
+     make -j$(nproc) KCFLAGS="-march=armv7-a" ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- menuconfig
      ```
 
   1. Compile the Kernel:
 
      ```
-     make -j6 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- Image modules dtbs
+     make -j$(nproc) KCFLAGS="-march=armv7-a" ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- zImage modules dtbs
      ```
 
-> I set the jobs argument (`-j6`) conservatively. If you have more processor cores, you may be able to speed up compilation with a higher number, like `-j8` or `-j10`.
+> I set the jobs argument (`$(nproc)`) conservatively. If you have an asymmetric core layout e-cores and p-cores feel free to set it higher, I suggest `2p+e`.
 
 **If you're cross-compiling the kernel**: proceed to the next sections.
 
-**If you're compiling the kernel on a Raspberry Pi**: install the new kernel and kernel modules directly, then reboot the Pi:
-
-```
-KERNEL=kernel_2712
-sudo make -j6 modules_install
-sudo cp /boot/firmware/$KERNEL.img /boot/firmware/$KERNEL-backup.img
-sudo cp arch/arm64/boot/Image /boot/firmware/$KERNEL.img
-sudo cp arch/arm64/boot/dts/broadcom/*.dtb /boot/firmware/
-sudo cp arch/arm64/boot/dts/overlays/*.dtb* /boot/firmware/overlays/
-sudo cp arch/arm64/boot/dts/overlays/README /boot/firmware/overlays/
-```
-
 ## Editing the kernel source inside /build/linux
 
-For the benefit of silly Mac users like me, I have a 'reverse NFS' mount available that lets me mount the linux checkout _from_ the container _to_ my Mac, meaning I can edit files from inside the container in a code editor on my Mac (like Sublime Text or some other IDE).
+For the benefit of silly Mac users like me, I have a 'reverse NFS' mount available that lets me mount the linux checkout _from_ the container _to_ my Mac, meaning I can edit files from inside the container in a code editor on my Mac (like Emacs or some other IDE).
 
 This is helpful because:
 
@@ -90,12 +75,6 @@ sudo mount -v -t nfs -o vers=4,port=2049 127.0.0.1:/ nfs-share
 It is most convenient to manage the built modules by copying them over to a running Pi, instead of doing a microSD card swap dance every time you recompile.
 
 One prerequisite for this particular method is to make sure you can mount the remote Pi's filesystem via `sshfs`.
-
-The easiest way is to run the `setup.yml` playbook:
-
-  1. Install Ansible.
-  2. Make sure the `inventory.ini` points at your Raspberry Pi (change the `127.0.0.1` IP address to the IP of the Pi on your network) and you can SSH into it.
-  3. Run `ansible-playbook setup.yml`.
 
 If you want to set it up manually instead, do this:
 
@@ -128,7 +107,7 @@ sshfs root@10.0.100.119:/boot /mnt/pi-fat32
 Install all the kernel modules:
 
 ```
-env PATH=$PATH make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- INSTALL_MOD_PATH=/mnt/pi-ext4 modules_install
+env PATH=$PATH make -j$(nproc) KCFLAGS="-march=armv7-a" ARCH=arm CROSS_COMPILE=aarch64-linux-gnu- INSTALL_MOD_PATH=/mnt/pi-ext4 modules_install
 ```
 
 Copy the kernel and DTBs onto the drive:
@@ -191,32 +170,23 @@ sudo mount /dev/sdb1 mnt/fat32
 sudo mount /dev/sdb2 mnt/ext4
 ```
 
-Copy the kernel and DTBs onto the drive:
-
-```
-sudo cp arch/arm64/boot/Image mnt/fat32/kernel_2712.img
-sudo cp arch/arm64/boot/dts/broadcom/*.dtb mnt/fat32/
-sudo cp arch/arm64/boot/dts/overlays/*.dtb* mnt/fat32/overlays/
-sudo cp arch/arm64/boot/dts/overlays/README mnt/fat32/overlays/
-```
-
 ### Installing modules and copying the built Kernel
 
 Install the kernel modules onto the drive:
 
 ```
-sudo env PATH=$PATH make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- INSTALL_MOD_PATH=mnt/ext4 modules_install
+sudo env PATH=$PATH make -j$(nproc) KCFLAGS="-march=armv7-a" ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- INSTALL_MOD_PATH=mnt/ext4 modules_install
 ```
 
-> For 32-bit Pi OS, use `sudo env PATH=$PATH make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- INSTALL_MOD_PATH=mnt/ext4 modules_install`
+> For 64-bit Pi OS, use `sudo env PATH=$PATH make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- INSTALL_MOD_PATH=mnt/ext4 modules_install`
 
 Copy the kernel and DTBs onto the drive:
 
 ```
-sudo cp arch/arm64/boot/Image mnt/fat32/kernel_2712.img
-sudo cp arch/arm64/boot/dts/broadcom/*.dtb mnt/fat32/
-sudo cp arch/arm64/boot/dts/overlays/*.dtb* mnt/fat32/overlays/
-sudo cp arch/arm64/boot/dts/overlays/README mnt/fat32/overlays/
+sudo cp arch/arm/boot/zImage /mnt/pi-fat32/kernel7l.img
+sudo cp arch/arm/boot/dts/*.dtb /mnt/pi-fat32/
+sudo cp arch/arm/boot/dts/overlays/*.dtb* /mnt/pi-fat32/overlays/
+sudo cp arch/arm/boot/dts/overlays/README /mnt/pi-fat32/overlays/
 ```
 
 ### Unmounting the drive
