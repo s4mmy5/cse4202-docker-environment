@@ -23,14 +23,15 @@ sshfs root@$PI_ADDRESS:/boot /mnt/pi-fat32
 
 # Install kernel modules.
 printf "Installing kernel modules\n"
-env PATH=$PATH make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- INSTALL_MOD_PATH=/mnt/pi-ext4 modules_install
+env PATH=$PATH make KCFLAGS="armv7-a" ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- INSTALL_MOD_PATH=/mnt/pi-ext4 modules_install
 
 # Copy kernel and DTBs to Pi.
 printf "Copying kernel and DTBs\n"
-cp arch/arm64/boot/Image /mnt/pi-fat32/kernel_2712.img
-cp arch/arm64/boot/dts/broadcom/*.dtb /mnt/pi-fat32/
-cp arch/arm64/boot/dts/overlays/*.dtb* /mnt/pi-fat32/overlays/
-cp arch/arm64/boot/dts/overlays/README /mnt/pi-fat32/overlays/
+cp arch/arm/boot/zImage /mnt/pi-fat32/kernel7l.img
+
+cp arch/arm/boot/dts/*.dtb /mnt/pi-fat32/
+cp arch/arm/boot/dts/overlays/*.dtb* /mnt/pi-fat32/overlays/
+cp arch/arm/boot/dts/overlays/README /mnt/pi-fat32/overlays/
 
 # Unmount Pi volumes.
 printf "Cleaning up\n"

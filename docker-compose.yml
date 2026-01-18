@@ -19,7 +19,7 @@ services:
     volumes:
       - linux:/build
       # Mount local user's SSH key into container.
-      - ~/.ssh/id_ed25519:/root/.ssh/id_ed25519:ro
+      - ~/.ssh/mikey:/root/.ssh/id_ed25519:ro
 
   cross-compile-nfs:
     image: gists/nfs-server

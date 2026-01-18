@@ -6,7 +6,7 @@
 
   tasks:
     - name: Ensure build environment is running.
-      community.docker.docker_compose:
+      community.docker.docker_compose_v2:
         project_src: ./
 
 - name: Set up SSH inside build environment.
