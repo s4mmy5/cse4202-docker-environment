@@ -23,7 +23,7 @@ sshfs root@$PI_ADDRESS:/boot /mnt/pi-fat32
 
 # Install kernel modules.
 printf "Installing kernel modules\n"
-env PATH=$PATH make KCFLAGS="armv7-a" ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- INSTALL_MOD_PATH=/mnt/pi-ext4 modules_install
+sudo env PATH=$PATH make -j20 KCFLAGS="-march=armv7-a" ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- INSTALL_MOD_PATH=mnt/ext4 modules_install
 
 # Copy kernel and DTBs to Pi.
 printf "Copying kernel and DTBs\n"

@@ -128,35 +128,6 @@ umount /mnt/pi-fat32
 
 Reboot the Pi and _voila!_, you're done!
 
-### Hard Reset on the CM4 IO Board
-
-If you get a fatal kernel panic that doesn't get caught cleanly (which I do, quite often, when debugging PCI Express devices), you can quickly reset the CM4 IO Board by jumping pins 12 and 14 on J2 (`GLOBAL_EN` to `GND`).
-
-You can also 'boot' a shutdown CM4 by jumping pins 13 and 14 on J2 (`GLOBAL_EN` to `RUN_PG`).
-
-### Kernel Headers
-
-If you also need the kernel headers and source available, you can do the following (before unmounting the filesystems):
-
-```
-# Get the kernel version (usually the last in the listing):
-sudo ls -lah /mnt/pi-ext4/lib/modules
-
-# Create a directory and copy the sources into it:
-sudo mkdir /mnt/pi-ext4/usr/src/linux-headers-5.10.14-v8+
-sudo rsync -avz --exclude .git /home/vagrant/linux/ root@10.0.100.119:/usr/src/linux-headers-5.10.14-v8+
-
-# Update the symlinks in the modules directory on the Pi:
-sudo rm -rf /mnt/pi-ext4/lib/modules/5.10.14-v8+/build
-sudo rm -rf /mnt/pi-ext4/lib/modules/5.10.14-v8+/source
-sudo ln -s /usr/src/linux-headers-5.10.14-v8+ /mnt/pi-ext4/lib/modules/5.10.14-v8+/build
-sudo ln -s /usr/src/linux-headers-5.10.14-v8+ /mnt/pi-ext4/lib/modules/5.10.14-v8+/source
-```
-
-This is sometimes necessary if you're compiling modules on the Pi that require kernel headers.
-
-> Note: This... doesn't work. I opened this issue to see if I could figure out the way: [Getting headers for custom cross-compiled kernel?](https://www.raspberrypi.org/forums/viewtopic.php?f=66&t=303289).
-
 ## Copying built Kernel via mounted USB drive or microSD
 
 The other option is to shut down the Pi, pull it's card or USB boot drive, and connect it to your computer so it can attach to the VM.
