@@ -1,6 +1,6 @@
 # Raspberry Pi Linux Cross-compilation Environment
 
-Inspired by Jeff Geerling's [cross compilation environment](https://github.com/geerlingguy/raspberry-pi-pcie-devices/tree/master/extras/cross-compile). Modified to use the CSE 4202 kernel version.
+Inspired by Jeff Geerling's [cross compilation environment](https://github.com/geerlingguy/raspberry-pi-pcie-devices/tree/master/extras/cross-compile). Modified to use the CSE 4202 kernel version + other useful tweaks.
 
 This environment can be used to [cross-compile the Raspberry Pi OS kernel](https://www.raspberrypi.org/documentation/linux/kernel/building.md) from a Linux, Windows, or Mac workstation using Docker.
 
