@@ -29,7 +29,13 @@ You will be dropped into a shell inside the container's `/build` directory. From
   1. Clone the linux repo (or clone a fork or a different branch):
 
      ```
-     wget https://github.com/raspberrypi/linux/archive/raspberrypi-kernel_1.20210527-1.tar.gz
+    wget https://github.com/raspberrypi/linux/archive/raspberrypi-kernel_1.20210527-1.tar.gz
+     ```
+
+  1. Untar the archive:
+
+     ```
+    tar -xzf raspberrypi-kernel_1.20210527-1.tar.gz
      ```
 
   1. Run the following commands to make the .config file:
@@ -52,7 +58,7 @@ You will be dropped into a shell inside the container's `/build` directory. From
      ```
 
 > I set the jobs argument (`$(nproc)`) conservatively. If you have an asymmetric core layout (i.e. e-cores and p-cores) feel free to set it higher, I suggest `2p+e`.
-
+  * [ ] 
 **If you're cross-compiling the kernel**: proceed to the next sections.
 
 ## Editing the kernel source inside /build/linux
