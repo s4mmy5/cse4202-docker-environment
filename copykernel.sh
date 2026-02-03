@@ -9,7 +9,7 @@
 # Bail on errors
 set -e
 
-PI_ADDRESS="${PI_ADDRESS:-10.0.100.127}"
+PI_ADDRESS="${PI_ADDRESS:-10.14.166.15}"
 
 # Mount Pi volumes locally (requires key authentication).
 # 1. Create key inside container: `ssh-keygen -t ed25519 -C "build-container"`

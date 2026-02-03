@@ -2,7 +2,7 @@
 
 This environment can be used to [cross-compile the Raspberry Pi OS kernel](https://www.raspberrypi.org/documentation/linux/kernel/building.md) from a Linux, Windows, or Mac workstation using Docker.
 
-You can also skip the 'Bringing up the build environment' section and just compile the kernel directly on the Pi itself.
+You can also skip the 'Bringing up the build environment' section and just compile the kernel directly on the Pi itself. (not reccomended since it's really slow)
 
 This build configuration currently targets Raspberry Pi 5, CM5, and Pi 500/500+, and on macOS using Docker Desktop, using the Pi OS 64-bit build.
 
@@ -51,7 +51,7 @@ You will be dropped into a shell inside the container's `/build` directory. From
      make -j$(nproc) KCFLAGS="-march=armv7-a" ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- zImage modules dtbs
      ```
 
-> I set the jobs argument (`$(nproc)`) conservatively. If you have an asymmetric core layout e-cores and p-cores feel free to set it higher, I suggest `2p+e`.
+> I set the jobs argument (`$(nproc)`) conservatively. If you have an asymmetric core layout (i.e. e-cores and p-cores) feel free to set it higher, I suggest `2p+e`.
 
 **If you're cross-compiling the kernel**: proceed to the next sections.
 
@@ -64,10 +64,10 @@ This is helpful because:
   - Most macOS installs don't have case-sensitive filesystems, so Linux codebase checkouts (which have files with duplicate filenames) will break.
   - Docker for Mac is funny and runs in a VM, so if you mount a local (host) directory into the container, performance goes down the drain.
 
-To connect to the NFS share, create a folder like `nfs-share` on your Mac and run the command:
+To connect to the NFS share, create a folder like `docker-nfs-share` on your Mac and run the command:
 
 ```
-sudo mount -v -t nfs -o vers=4,port=2049 127.0.0.1:/ nfs-share
+sudo mount -v -t nfs -o vers=4,port=2049 127.0.0.1:/ docker-nfs-share
 ```
 
 ## Copying built Kernel via remote SSHFS filesystem
